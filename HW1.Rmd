@@ -1,0 +1,37 @@
+---
+title: "Econ 21020 HW1"
+output: html_document
+date: '2022-04-01'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+
+```{r cars}
+summary(cars)
+```
+
+
+```{r pressure, echo=FALSE}
+n <- 10000
+mu <- 0
+sigma <- 1
+x <- rnorm(n, mu, sigma)
+df = data.frame(vary = x)
+ggplot(df, aes(x=vary)) + geom_histogram(color="black", fill="white")
+```
+
+
+```{r pressure, echo=FALSE}
+n <- 10000
+min_y <- -1
+max_y <- 1
+y <- runif(n, min_y, max_y)
+df = data.frame(vary = y)
+ggplot(df, aes(x=vary)) + geom_histogram(color="black", fill="white")
+```
+
+
