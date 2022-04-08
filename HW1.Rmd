@@ -35,3 +35,26 @@ ggplot(df, aes(x=vary)) + geom_histogram(color="black", fill="white")
 ```
 
 
+```{r pressure, echo=FALSE}
+## Part 9 
+#B)
+my_rbernoulli <- function(n,p){
+  x <- runif(n,1-p,p)
+  return(x)
+}
+x <- my_rbernoulli(10000,0.5)
+length(x) == 10000
+mean(x)
+```
+
+```{r pressure, echo=FALSE}
+#C)
+my_rbinomial <- function(n, p, m){
+  y<-my_rbernoulli(n,p)
+  return(m*y)
+}
+
+x <- my_rbinomial (10000 , 0.5, 10)
+length(x) == 10000 # should return TRUE
+mean(x) # should a number near 5
+```
