@@ -1,0 +1,101 @@
+---
+title: "HW2"
+output: html_document
+date: '2022-04-19'
+---
+
+```{r setup, include=FALSE}
+df = ak91
+yrs_educ <- df$YRS_EDUC
+wkly_wage <- df$WKLY_WAGE
+#College Grads
+has_college_degree <- yrs_educ == 16
+
+```
+
+
+```{r cars}
+#A)
+x_estimator = (1 / 329509) * sum(has_college_degree)
+x_estimator
+```
+# The estimate for P(X=1) is about 0.1084857
+
+
+```{r pressure, echo=FALSE}
+#B)
+num = 0
+denom = 0
+for (x in 1:329509){
+  denom = denom + has_college_degree[x]
+  num = num + (has_college_degree[x] * wkly_wage[x])
+}
+
+mu_college = num / denom
+mu_college
+```
+#The number is about 594.4866
+```{r cars}
+#C)
+se_college = (1/ (sqrt(329509))) *  sqrt(mu_college/x_estimator)
+se_college
+
+```
+#The standard error is about 0.1289589
+```{r cars}
+#D)
+conf_int = c(mu_college - (1.96 * se_college), mu_college + (1.96 * se_college))
+conf_int
+
+```
+#The Confidence Interval is: [594.2338 , 594.7393]
+
+#E)
+The value 600 for the Null Hypothesis is not in the confidence interval listed above. At a 5% significance level, this would be statistically significant and imply E[Y|X=1] != 600, so we reject the null hyp. This implies that the likelihood that the average weekly wage for those with degrees in the sample is 600 given other conditions is less that 5%.
+
+#F)
+595 is also not within the confidence interval, which would imply that we should also reject the null hypothesis.
+This implies that the likelihood that the average weekly wage for those with degrees in the sample is 595 given other conditions is less that 5%.
+
+
+#Extra Credit
+```{r cars}
+#A)
+my_confint <- function(mu_hat , se , alpha) {
+  z_val = qnorm(1-(alpha/2))
+
+  confint <- c(mu_hat - (z_val * se) , mu_hat + (z_val * se))
+  return (confint)
+}
+```
+
+
+```{r cars}
+#B)
+my_testrejects <- function(confint , mu_0) {
+  is_in_confint <- (mu_0 - confint[1] >= 0) & (confint[2] - mu_0 >= 0)
+  is_rejected <- !is_in_confint
+  return(is_rejected)
+}
+confint_01 <- my_confint(mu_college , se_college , 0.01)
+my_testrejects(confint_01, 600)
+confint_10 <- my_confint(mu_college , se_college , 0.1)
+my_testrejects(confint_10, 600)
+```
+#There appears to be an error with my SE_College since the first one rejects as well
+```{r cars}
+#C)
+my_twosidedtest <- function(mu_hat , se , alpha , mu_0) {
+  is_rejected <-   my_testrejects(my_confint(mu_hat , se , alpha), mu_0)
+  if (is_rejected) {
+    message <- "REJECTS the NULL"
+  }
+  else{
+    message <- "FAILS to REJECT the NULL"
+  }
+  print(message)
+}
+
+my_twosidedtest(mu_college , se_college , 0.01, 600)
+my_twosidedtest(mu_college , se_college , 0.10, 600)
+```
