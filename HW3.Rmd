@@ -1,0 +1,126 @@
+---
+title: "HW3"
+output: html_document
+date: '2022-05-01'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r cars}
+df = ak91
+n <- nrow(df)
+yrs_educ <- df$YRS_EDUC      #X
+wkly_wage <- df$WKLY_WAGE    #Y
+```
+
+
+B)
+```{r pressure, echo=FALSE}
+
+overN <- 1/n
+
+sumXY <-0
+sumX <- 0
+sumY <- 0
+sumX2 <- 0
+
+for (i in n) {
+  sumXY = sumXY + (yrs_educ[i] * wkly_wage[i])
+  sumX = sumX + yrs_educ[i]
+  sumY = sumY + wkly_wage[i]
+  sumX2 = sumX2 + (yrs_educ[i]^2)
+}
+# assembly
+beta = ((overN * sumXY) - (overN * sumY * overN * sumX))/((overN * sumX2) - (overN * sumX)^2)
+beta
+alpha = overN*sumY - (overN*sumX)*beta
+alpha
+```
+D)
+
+```{r cars}
+epsilon = wkly_wage - alpha + yrs_educ * beta
+se = (1/sqrt(n)) *(sqrt(mean(epsilon^2 * (yrs_educ - mean(yrs_educ))^2)))/var(yrs_educ)
+se
+```
+
+
+Problem 7 Bonus
+
+```{r cars}
+#A)
+my_simplecoef <- function(y, x) {
+  n = length(y)
+  overN <- 1/n
+  sumXY <-0
+  sumX <- 0
+  sumY <- 0
+  sumX2 <- 0
+  
+  for (i in n) {
+    sumXY = sumXY + (yrs_educ[i] * wkly_wage[i])
+    sumX = sumX + yrs_educ[i]
+    sumY = sumY + wkly_wage[i]
+    sumX2 = sumX2 + (yrs_educ[i]^2)
+  }
+  # assembly
+  beta = ((overN * sumXY) - (overN * sumY * overN * sumX))/((overN * sumX2) - (overN * sumX)^2)
+  alpha = overN*sumY - (overN*sumX)*beta
+  return (c(alpha,beta))
+}
+coef <- my_simplecoef(wkly_wage , yrs_educ)
+coef
+```
+
+```{r cars}
+#B)
+my_simpleblp <- function(coef , x) {
+  n = length(x)
+  y_est = rep(0, n)
+  for (i in n){
+    y_est[i] = coef[1] + (x[i] * coef[2])
+  }
+  
+  return(y_est)
+}
+mean(wkly_wage) - mean(my_simpleblp(coef , yrs_educ))
+```
+
+```{r cars}
+#C)
+my_simplese <- function(coef , y, x) {
+  n = length(x)
+  est_y = my_simpleblp(coef, x)
+  epsilon = y - est_y
+  se = (1/sqrt(n)) *(sqrt(mean(epsilon^2 * (x - mean(x))^2)))/var(x)
+}
+se <- my_simplese(coef , wkly_wage , yrs_educ)
+se
+```
+
+```{r cars}
+#D)
+my_simpleteststat <- function(beta , se) {
+  t = abs(beta / se)
+  p = pnorm(t, lower.tail = FALSE)
+  return (c(t,p))
+}
+
+my_simpleteststat(coef [2] - 31, se)
+```
+
+```{r cars}
+#E)
+my_simpleols <- function(y, x) {
+  coeff = my_simplecoef(y,x)
+  se_new = my_simplese(coeff, y,x)
+  tstats = my_simpleteststat(coeff[2],se_new )
+  return( c(coeff[2],se_new, tstats[1], tstats[2]) )
+}
+
+my_simpleols(wkly_wage , yrs_educ)
+```
