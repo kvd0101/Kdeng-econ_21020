@@ -1,0 +1,116 @@
+---
+title: "HW4"
+output: html_document
+date: '2022-05-18'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+dat <- as.matrix(bw06)
+y <- dat[, "birthweight"]
+w <- dat[, "cigsdaily"]
+x <- cbind(1, dat[, c("boy", "age", "highschool","somecollege", "college")])
+x_tld <- dat[, "married"]
+
+```
+#6A
+
+```{r pressure, echo=FALSE}
+#6A)
+betaW = cov(y,w)/var(w)
+alphaW = mean(y) - mean(w)*betaW
+betaW
+alphaW
+```
+
+```{r pressure, echo=FALSE}
+#wsup = unique(w)
+#k = dat[which(dat[,5]==18),]
+#unique(k[,13])
+XX_inv <- solve(t(x) %*% x)
+XY <- t(x) %*% y
+betaX <- XX_inv %*% XY
+betaComb = betaX
+betaComb[7] = betaW
+betaComb
+ytild = y - (x %*% betaX)
+#-----------------------------------------
+Xw <- t(x) %*% w
+betaXw <- XX_inv %*% Xw
+wtild = w - (x %*% betaXw)
+
+
+Bw = cov(wtild,ytild)/ var(wtild)
+Bw
+```
+
+
+
+```{r pressure, echo=FALSE}
+#BONUS
+#A)
+my_coef <- function(y, X) {
+  XX_inv <- solve(t(X) %*% X)
+  XY <- t(X) %*% y
+  beta <- XX_inv %*% XY
+  return(beta)
+}
+coef <- my_coef(y, x)
+coef
+
+```
+
+```{r pressure, echo=FALSE}
+#B)
+my_blp <- function(coef , x) {
+  return_vec = (x)%*%coef
+  return(return_vec)
+}
+
+mean(y - my_blp(coef , x)) # 0
+
+```
+
+```{r pressure, echo=FALSE}
+#C)
+my_se <- function(coef , y, X) {
+  n = nrow(X)
+  blp = my_blp(coef, X)
+  epsilon <- c(y - blp)
+  XX_eps2 <- t(X * epsilon) %*% (X * epsilon)
+  Sigma <- XX_inv %*% XX_eps2 %*% XX_inv / n
+  se <- sqrt(diag(Sigma )) / sqrt (n)
+}
+se <- my_se(coef , y, x)
+se
+```
+
+```{r pressure, echo=FALSE}
+#D)
+my_teststat <- function(beta , se) {
+  tvec = abs(beta / se)
+  plist = rep(6,0)
+  count = 1
+  for (T in tvec){
+    plist[count] = 2*(1 - pnorm(abs(T)))
+    count = count + 1
+  }
+  return(c(tvec, plist))
+}
+my_teststat(coef , se)
+```
+```{r pressure, echo=FALSE}
+#E)
+my_ols <- function(y, X) {
+  coeff = my_coef(y , X)
+  se = my_se(coeff, y, X)
+  tests = my_teststat(coeff, se)
+  mat.data <- c(coeff,se, tests)
+  mat <- matrix(mat.data,nrow=6,ncol=4)
+  return(mat)
+}
+my_ols(y, x)
+```
